@@ -1,0 +1,6 @@
+
+db.sqlite3
+*.jpeg
+*.sqlite3
+*.png
+*.sqlite3

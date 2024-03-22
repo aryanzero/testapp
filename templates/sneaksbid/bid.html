@@ -1,0 +1,142 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .item-details {
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    background: #fff;
+  }
+
+  .item-details img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .btn {
+    background-color: #000;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 20px;
+  }
+
+  .btn:hover {
+    background-color: #333;
+  }
+     .button-container {
+    display: flex;
+    gap: 10px; /* Adds space between buttons */
+    justify-content: center; /* Center align the buttons */
+    margin-top: 20px; /* Space from the text above */
+  }
+
+ .cart-button {
+    background-color: #FFFFFF;
+    color: #000;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 20px;/* Inline-block for side-by-side display */
+  }
+
+  .btn:hover{
+    background-color: #333;
+  }
+.cart-button:hover {
+    background-color: #000000a6;
+  }
+  .cart-button img {
+    margin-right: 5px;
+  }
+</style>
+    <div class="content">
+<div class="item-details">
+    <a href="{% url 'item_detail' item_id=item.id %}" class="block2-name dis-block s-text3 p-b-5">
+        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="featured-img"></a>
+    <h2>{{ item.title }}</h2>
+    <p>Description: {{ item.description }}</p>
+    <!-- Display Current Bid -->
+    {% if item.bids.all %}
+        <p>Current Bid: ${{ item.bids.last.bid_amount }}</p>
+    {% else %}
+        <p>Base Price: ${{ item.base_price }}</p>
+    {% endif %}
+
+    <!-- Check if the user has won the auction -->
+    {% if user_won_auction %}
+        <!-- Display message for winning the auction -->
+        <p>Congratulations! You have won the auction with your bid of ${{ bid.bid_amount }}.</p>
+
+        <!-- Proceed to Checkout button -->
+        <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed Checkout</a>
+
+    {% else %}
+        <!-- Display message for ongoing or ended auction -->
+        {% if item.is_auction_active %}
+            <p>Auction is currently active!</p>
+            <div class="bid-form">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Place Bid</button>
+                </form>
+            </div>
+        {% else %}
+            <p>Auction has ended.</p>
+            {% if item.bids.all %}
+                {% for bid in item.bids.all %}
+
+                    {% if bid.is_winner %}
+                        <p>Congratulations! You have won the auction with your bid of ${{ bid.bid_amount }}.</p>
+                        <!-- Proceed to Checkout button -->
+                        <div class="button-container">
+                        <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+
+                        <!-- Add to Cart button -->
+                             <form id="addToCartForm" action="{% url 'add_to_cart' item.id %}" method="post">
+                    {% csrf_token %}
+                    <button id="addToCartButton" type="submit" style="display: none;">Add to Cart</button>
+                </form>
+
+                <div class="cart-button" onclick="document.getElementById('addToCartForm').submit();">
+                    <img src="{% static 'images/basket-cart-icon-27.png' %}" alt="Cart" width="30">
+                    <span class="cart-popup">Add to Cart</span>
+                </div>
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+            {% else %}
+                <p>No bids were placed for this item.</p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</div>
+    </div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+    <style>
+        .bg-title-page {
+            /* Your background styles */
+        }
+
+        .l-text2, .m-text13 {
+            /* Your text styles */
+        }
+
+        .search-form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        .search-button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
+        }
+
+        .sneaker-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            text-align: center;
+            justify-content: center; /* Center the items horizontally */
+            align-items: center; /* Center the items vertically */
+        }
+
+        .sneaker {
+            width: calc(33.33% - 100px);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sneaker img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+        }
+
+        .sneaker h3 {
+            margin-top: 10px;
+        }
+
+        .sneaker p {
+            margin-bottom: 5px;
+        }
+
+        .sneaker .btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Title Page -->
+    <section class="bg-title-page p-t-50 p-b-40 flex-col-c-m" style="background-image: url(/static/images/sneaksbid.jpg);">
+        <h2 class="l-text2 t-center">
+            Shop
+        </h2>
+        <p class="m-text13 t-center">
+            All categories
+        </p>
+    </section>
+
+    <!-- Search Bar -->
+    <form action="{% url 'search_sneakers' %}" method="GET" class="search-form">
+        <input type="text" name="query" placeholder="Search shoes by name" class="search-input">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <!-- Display Search Results -->
+    <div class="sneaker-images">
+        {% if search_results %}
+            {% for sneaker in search_results %}
+            <div class="sneaker">
+                <img src="{{ sneaker.image.url }}" alt="{{ sneaker.title }}">
+                <h3>{{ sneaker.title }}</h3>
+                <p>Description: {{ sneaker.description }}</p>
+                <p>Price: ${{ sneaker.base_price }}</p>
+                {% if sneaker.is_auction_active %}
+                    <p>Auction is active!</p>
+                        <p>Auction ends in approximately {{ item.auction_duration }} days</p>
+                {% else %}
+                    <p>Auction is not active.</p>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'place_bid' item_id=sneaker.id %}" class="btn btn-primary">Place Bid</a>
+                {% endif %}
+            </div>\
+            {% endfor %}
+        {% else %}
+            <p>No search results found.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
